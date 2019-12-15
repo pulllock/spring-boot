@@ -34,6 +34,8 @@ import org.springframework.context.annotation.Import;
  * @see AutoConfigurationPackages
  *
  * 自动配置包，获取主程序类所在的包路径，将包路径以及子包下的所有组件注册到Spring容器中。
+ * 将使用@AutoConfigurationPackage注解的类所在的包注册成一个Bean，后续有其他模块需要使用，
+ * 就可以通过获得该Bean来获得所在包
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

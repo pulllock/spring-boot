@@ -141,6 +141,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 	}
 
 	protected boolean isEnabled(AnnotationMetadata metadata) {
+		// 判断spring.boot.enableautoconfiguration配置，是否开启自动配置。如果没有配置，默认开启自动配置
 		if (getClass() == AutoConfigurationImportSelector.class) {
 			return getEnvironment().getProperty(EnableAutoConfiguration.ENABLED_OVERRIDE_PROPERTY, Boolean.class, true);
 		}
@@ -155,7 +156,9 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 	 * @return annotation attributes
 	 */
 	protected AnnotationAttributes getAttributes(AnnotationMetadata metadata) {
+		// EnableAutoConfiguration.class
 		String name = getAnnotationClass().getName();
+		// 获取注解的属性
 		AnnotationAttributes attributes = AnnotationAttributes.fromMap(metadata.getAnnotationAttributes(name, true));
 		Assert.notNull(attributes, () -> "No auto-configuration attributes found. Is " + metadata.getClassName()
 				+ " annotated with " + ClassUtils.getShortName(name) + "?");
@@ -201,10 +204,12 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 	private void checkExcludedClasses(List<String> configurations, Set<String> exclusions) {
 		List<String> invalidExcludes = new ArrayList<>(exclusions.size());
 		for (String exclusion : exclusions) {
+			// classpath存在该类，configurations不存在该类
 			if (ClassUtils.isPresent(exclusion, getClass().getClassLoader()) && !configurations.contains(exclusion)) {
 				invalidExcludes.add(exclusion);
 			}
 		}
+		// exclude的类非法，抛异常
 		if (!invalidExcludes.isEmpty()) {
 			handleInvalidExcludes(invalidExcludes);
 		}
@@ -234,8 +239,11 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 	 */
 	protected Set<String> getExclusions(AnnotationMetadata metadata, AnnotationAttributes attributes) {
 		Set<String> excluded = new LinkedHashSet<>();
+		// 注解上的exclude属性
 		excluded.addAll(asList(attributes, "exclude"));
+		// 注解上的excludeName属性
 		excluded.addAll(Arrays.asList(attributes.getStringArray("excludeName")));
+		// 配置文件的 spring.autoconfigure.exclude 属性
 		excluded.addAll(getExcludeAutoConfigurationsProperty());
 		return excluded;
 	}
@@ -297,11 +305,14 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 	}
 
 	private void fireAutoConfigurationImportEvents(List<String> configurations, Set<String> exclusions) {
+		// AutoConfigurationImportListener类型的，从META-INF/spring.factories中加载
 		List<AutoConfigurationImportListener> listeners = getAutoConfigurationImportListeners();
 		if (!listeners.isEmpty()) {
 			AutoConfigurationImportEvent event = new AutoConfigurationImportEvent(this, configurations, exclusions);
 			for (AutoConfigurationImportListener listener : listeners) {
+				// 设置AutoConfigurationImportListener的相关aware属性
 				invokeAwareMethods(listener);
+				// 触发事件
 				listener.onAutoConfigurationImportEvent(event);
 			}
 		}

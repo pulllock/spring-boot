@@ -90,12 +90,14 @@ public abstract class AutoConfigurationPackages {
 	 * @param packageNames the package names to set
 	 */
 	public static void register(BeanDefinitionRegistry registry, String... packageNames) {
+		// 如果存在AutoConfigurationPackages名字的Bean，则修改包属性
 		if (registry.containsBeanDefinition(BEAN)) {
 			BeanDefinition beanDefinition = registry.getBeanDefinition(BEAN);
 			ConstructorArgumentValues constructorArguments = beanDefinition.getConstructorArgumentValues();
 			constructorArguments.addIndexedArgumentValue(0, addBasePackages(constructorArguments, packageNames));
 		}
 		else {
+			// 如果不存在，创建Bean并注册
 			GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
 			beanDefinition.setBeanClass(BasePackages.class);
 			beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0, packageNames);
@@ -115,11 +117,13 @@ public abstract class AutoConfigurationPackages {
 	/**
 	 * {@link ImportBeanDefinitionRegistrar} to store the base package from the importing
 	 * configuration.
+	 * 处理AutoConfigurationPackage注解
 	 */
 	static class Registrar implements ImportBeanDefinitionRegistrar, DeterminableImports {
 
 		@Override
 		public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
+			// 注册一个存储包名的Bean到Spring容器中
 			register(registry, new PackageImport(metadata).getPackageName());
 		}
 
@@ -132,6 +136,7 @@ public abstract class AutoConfigurationPackages {
 
 	/**
 	 * Wrapper for a package import.
+	 * 用于获得包名
 	 */
 	private static final class PackageImport {
 

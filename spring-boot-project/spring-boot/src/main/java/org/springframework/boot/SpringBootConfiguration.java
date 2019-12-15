@@ -39,6 +39,8 @@ import org.springframework.core.annotation.AliasFor;
  * @author Phillip Webb
  * @author Andy Wilkinson
  * @since 1.4.0
+ * Spring Boot配置类，继承自@Confiugration注解。
+ * 可以将当前类内声明的一个或者多个@Bean注解的方法实例注册到Spring容器中，实例名就是方法名。
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

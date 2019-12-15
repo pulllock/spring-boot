@@ -32,6 +32,7 @@ import org.springframework.context.annotation.Conditional;
  *
  * @author Phillip Webb
  * @since 1.2.0
+ * 在JNDI存在的条件下存在指定的值
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)

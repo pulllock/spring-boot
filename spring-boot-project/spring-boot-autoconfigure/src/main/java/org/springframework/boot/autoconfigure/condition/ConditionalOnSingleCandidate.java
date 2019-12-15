@@ -41,6 +41,7 @@ import org.springframework.context.annotation.Conditional;
  *
  * @author Stephane Nicoll
  * @since 1.3.0
+ * 当指定的Bean在容器中只有一个，或者有多个但是指定首选Bean。
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)

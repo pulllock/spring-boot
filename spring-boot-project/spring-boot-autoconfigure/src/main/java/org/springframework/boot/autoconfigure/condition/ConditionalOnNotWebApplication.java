@@ -30,6 +30,7 @@ import org.springframework.context.annotation.Conditional;
  *
  * @author Dave Syer
  * @since 1.0.0
+ * 在当前不是web项目的条件下
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)

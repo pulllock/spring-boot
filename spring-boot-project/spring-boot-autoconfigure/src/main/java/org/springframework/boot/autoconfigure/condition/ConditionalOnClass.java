@@ -36,6 +36,7 @@ import org.springframework.context.annotation.Conditional;
  *
  * @author Phillip Webb
  * @since 1.0.0
+ * 当classpath下有指定类的情况下
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)

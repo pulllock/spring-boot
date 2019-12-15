@@ -35,6 +35,7 @@ import org.springframework.util.StringUtils;
  * @author Phillip Webb
  * @author Greg Turnquist
  * @since 1.0.0
+ * 实现了Condition接口，是Spring boot中所有Condition实现类的父类
  */
 public abstract class SpringBootCondition implements Condition {
 
@@ -42,11 +43,16 @@ public abstract class SpringBootCondition implements Condition {
 
 	@Override
 	public final boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+		// 获得注解的方法名或者类名
 		String classOrMethodName = getClassOrMethodName(metadata);
 		try {
+			// 条件匹配结果，子类实现
 			ConditionOutcome outcome = getMatchOutcome(context, metadata);
+			// 打印结果
 			logOutcome(classOrMethodName, outcome);
+			// 记录
 			recordEvaluation(context, classOrMethodName, outcome);
+			// 返回是否匹配
 			return outcome.isMatch();
 		}
 		catch (NoClassDefFoundError ex) {
@@ -62,9 +68,11 @@ public abstract class SpringBootCondition implements Condition {
 	}
 
 	private String getName(AnnotatedTypeMetadata metadata) {
+		// 类
 		if (metadata instanceof AnnotationMetadata) {
 			return ((AnnotationMetadata) metadata).getClassName();
 		}
+		// 方法
 		if (metadata instanceof MethodMetadata) {
 			MethodMetadata methodMetadata = (MethodMetadata) metadata;
 			return methodMetadata.getDeclaringClassName() + "." + methodMetadata.getMethodName();

@@ -30,6 +30,7 @@ import org.springframework.context.annotation.Conditional;
  *
  * @author Dave Syer
  * @since 1.0.0
+ * classpath是否有指定的值
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)

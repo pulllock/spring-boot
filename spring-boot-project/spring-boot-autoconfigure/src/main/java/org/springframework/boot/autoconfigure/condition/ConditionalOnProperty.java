@@ -88,6 +88,7 @@ import org.springframework.core.env.Environment;
  * @author Stephane Nicoll
  * @author Phillip Webb
  * @since 1.1.0
+ * 指定的属性是否有指定的值
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })

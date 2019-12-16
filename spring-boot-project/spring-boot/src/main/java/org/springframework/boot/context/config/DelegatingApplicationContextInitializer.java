@@ -38,6 +38,7 @@ import org.springframework.util.StringUtils;
  * @author Dave Syer
  * @author Phillip Webb
  * @since 1.0.0
+ * 使用环境变量context.initializer.classes配置的ApplicationContextInitializer来进行初始化
  */
 public class DelegatingApplicationContextInitializer
 		implements ApplicationContextInitializer<ConfigurableApplicationContext>, Ordered {
@@ -46,22 +47,30 @@ public class DelegatingApplicationContextInitializer
 
 	private static final String PROPERTY_NAME = "context.initializer.classes";
 
+	/**
+	 * 默认优先级为0，排在最前面
+	 */
 	private int order = 0;
 
 	@Override
 	public void initialize(ConfigurableApplicationContext context) {
+		// 获取环境变量中配置的所有的ApplicationContextInitializer集合
 		ConfigurableEnvironment environment = context.getEnvironment();
 		List<Class<?>> initializerClasses = getInitializerClasses(environment);
 		if (!initializerClasses.isEmpty()) {
+			// 进行初始化
 			applyInitializerClasses(context, initializerClasses);
 		}
 	}
 
 	private List<Class<?>> getInitializerClasses(ConfigurableEnvironment env) {
+		// 获取环境变量配置的属性
 		String classNames = env.getProperty(PROPERTY_NAME);
 		List<Class<?>> classes = new ArrayList<>();
 		if (StringUtils.hasLength(classNames)) {
+			// 逗号分隔
 			for (String className : StringUtils.tokenizeToStringArray(classNames, ",")) {
+				// 获得initializer的类
 				classes.add(getInitializerClass(className));
 			}
 		}
@@ -83,8 +92,10 @@ public class DelegatingApplicationContextInitializer
 		Class<?> contextClass = context.getClass();
 		List<ApplicationContextInitializer<?>> initializers = new ArrayList<>();
 		for (Class<?> initializerClass : initializerClasses) {
+			// 创建ApplicationContextInitializer对象
 			initializers.add(instantiateInitializer(contextClass, initializerClass));
 		}
+		// 调用ApplicationContextInitializer的初始化逻辑
 		applyInitializers(context, initializers);
 	}
 
@@ -104,6 +115,7 @@ public class DelegatingApplicationContextInitializer
 			List<ApplicationContextInitializer<?>> initializers) {
 		initializers.sort(new AnnotationAwareOrderComparator());
 		for (ApplicationContextInitializer initializer : initializers) {
+			// 执行ApplicationContextInitializer的初始化逻辑
 			initializer.initialize(context);
 		}
 	}

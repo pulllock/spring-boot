@@ -34,6 +34,7 @@ import org.springframework.util.StringUtils;
  * @author Dave Syer
  * @author Andy Wilkinson
  * @since 1.0.0
+ * 负责生成Spring容器的编号
  */
 public class ContextIdApplicationContextInitializer
 		implements ApplicationContextInitializer<ConfigurableApplicationContext>, Ordered {

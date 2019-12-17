@@ -75,7 +75,7 @@ import org.springframework.core.io.support.SpringFactoriesLoader;
  * @see AutoConfigureAfter
  * @see SpringBootApplication
  *
- * 开启自动配置
+ * 开启自动配置，通过@Import，将所有符合自动配置条件的bean定义加载到ioc容器中
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

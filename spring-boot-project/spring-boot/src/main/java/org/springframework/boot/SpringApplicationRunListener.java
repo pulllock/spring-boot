@@ -32,6 +32,7 @@ import org.springframework.core.io.support.SpringFactoriesLoader;
  * @author Dave Syer
  * @author Andy Wilkinson
  * @since 1.0.0
+ * SpringBoot应用的main方法执行过程中接收不同执行点时事件通知的监听者
  */
 public interface SpringApplicationRunListener {
 

@@ -36,6 +36,7 @@ import org.springframework.util.StringUtils;
  * @author Greg Turnquist
  * @since 1.0.0
  * 实现了Condition接口，是Spring boot中所有Condition实现类的父类
+ * 该类主要用来记录日志和匹配结果等，真正匹配是具体子类的实现
  */
 public abstract class SpringBootCondition implements Condition {
 

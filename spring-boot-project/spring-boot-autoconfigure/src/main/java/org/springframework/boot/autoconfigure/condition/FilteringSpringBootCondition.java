@@ -88,6 +88,7 @@ abstract class FilteringSpringBootCondition extends SpringBootCondition
 		}
 		List<String> matches = new ArrayList<>(classNames.size());
 		for (String candidate : classNames) {
+			// 根据不同的Filter进行匹配
 			if (classNameFilter.matches(candidate, classLoader)) {
 				matches.add(candidate);
 			}

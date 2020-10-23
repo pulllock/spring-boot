@@ -58,6 +58,7 @@ import org.springframework.context.annotation.Conditional;
  * @author Phillip Webb
  * @since 1.0.0
  * 当容器中有指定Bean的条件下
+ * 只能匹配到当前已经被容器处理过的Bean，如果依赖的Bean还没有被处理，会得到错误的结果
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)

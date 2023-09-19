@@ -38,7 +38,7 @@ import org.springframework.util.StringUtils;
  * @author Dave Syer
  * @author Phillip Webb
  * @since 1.0.0
- * 使用环境变量context.initializer.classes配置的ApplicationContextInitializer来进行初始化
+ * 可以使用context.initializer.classes配置的ApplicationContextInitializer来进行初始化
  */
 public class DelegatingApplicationContextInitializer
 		implements ApplicationContextInitializer<ConfigurableApplicationContext>, Ordered {
@@ -54,8 +54,8 @@ public class DelegatingApplicationContextInitializer
 
 	@Override
 	public void initialize(ConfigurableApplicationContext context) {
-		// 获取环境变量中配置的所有的ApplicationContextInitializer集合
 		ConfigurableEnvironment environment = context.getEnvironment();
+		// 获取使用context.initializer.classes配置的所有的ApplicationContextInitializer实例集合
 		List<Class<?>> initializerClasses = getInitializerClasses(environment);
 		if (!initializerClasses.isEmpty()) {
 			// 进行初始化
@@ -64,7 +64,7 @@ public class DelegatingApplicationContextInitializer
 	}
 
 	private List<Class<?>> getInitializerClasses(ConfigurableEnvironment env) {
-		// 获取环境变量配置的属性
+		// 获取使用context.initializer.classes配置的ApplicationContextInitializer
 		String classNames = env.getProperty(PROPERTY_NAME);
 		List<Class<?>> classes = new ArrayList<>();
 		if (StringUtils.hasLength(classNames)) {

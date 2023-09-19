@@ -34,7 +34,8 @@ import org.springframework.util.StringUtils;
  * @author Dave Syer
  * @author Andy Wilkinson
  * @since 1.0.0
- * 负责生成Spring容器的编号
+ *
+ * 生成应用上下文的ID
  */
 public class ContextIdApplicationContextInitializer
 		implements ApplicationContextInitializer<ConfigurableApplicationContext>, Ordered {
@@ -52,12 +53,20 @@ public class ContextIdApplicationContextInitializer
 
 	@Override
 	public void initialize(ConfigurableApplicationContext applicationContext) {
+		// 生成应用上下文ID
 		ContextId contextId = getContextId(applicationContext);
+		// 设置应用上下文ID
 		applicationContext.setId(contextId.getId());
 		applicationContext.getBeanFactory().registerSingleton(ContextId.class.getName(), contextId);
 	}
 
+	/**
+	 * 生成应用上下文ID
+	 * @param applicationContext
+	 * @return
+	 */
 	private ContextId getContextId(ConfigurableApplicationContext applicationContext) {
+		// 获取父上下文
 		ApplicationContext parent = applicationContext.getParent();
 		if (parent != null && parent.containsBean(ContextId.class.getName())) {
 			return parent.getBean(ContextId.class).createChildId();
@@ -65,6 +74,11 @@ public class ContextIdApplicationContextInitializer
 		return new ContextId(getApplicationId(applicationContext.getEnvironment()));
 	}
 
+	/**
+	 * 如果配置应用名，则使用应用名，否则使用固定的字符串"application"
+	 * @param environment
+	 * @return
+	 */
 	private String getApplicationId(ConfigurableEnvironment environment) {
 		String name = environment.getProperty("spring.application.name");
 		return StringUtils.hasText(name) ? name : "application";

@@ -163,6 +163,8 @@ public class SpringApplication {
 	/**
 	 * The class name of application context that will be used by default for non-web
 	 * environments.
+	 *
+	 * 非web环境下默认的应用上下文类名
 	 */
 	public static final String DEFAULT_CONTEXT_CLASS = "org.springframework.context."
 			+ "annotation.AnnotationConfigApplicationContext";
@@ -170,6 +172,8 @@ public class SpringApplication {
 	/**
 	 * The class name of application context that will be used by default for web
 	 * environments.
+	 *
+	 * web环境下默认的应用上下文类名
 	 */
 	public static final String DEFAULT_SERVLET_WEB_CONTEXT_CLASS = "org.springframework.boot."
 			+ "web.servlet.context.AnnotationConfigServletWebServerApplicationContext";
@@ -177,17 +181,23 @@ public class SpringApplication {
 	/**
 	 * The class name of application context that will be used by default for reactive web
 	 * environments.
+	 *
+	 * 响应式web环境下默认的应用上下文类名
 	 */
 	public static final String DEFAULT_REACTIVE_WEB_CONTEXT_CLASS = "org.springframework."
 			+ "boot.web.reactive.context.AnnotationConfigReactiveWebServerApplicationContext";
 
 	/**
 	 * Default banner location.
+	 *
+	 * 默认banner位置
 	 */
 	public static final String BANNER_LOCATION_PROPERTY_VALUE = SpringApplicationBannerPrinter.DEFAULT_BANNER_LOCATION;
 
 	/**
 	 * Banner location property key.
+	 *
+	 * 可用来指定banner位置的属性
 	 */
 	public static final String BANNER_LOCATION_PROPERTY = SpringApplicationBannerPrinter.BANNER_LOCATION_PROPERTY;
 
@@ -202,10 +212,19 @@ public class SpringApplication {
 
 	private Set<String> sources = new LinkedHashSet<>();
 
+	/**
+	 * 含有main方法的类
+	 */
 	private Class<?> mainApplicationClass;
 
+	/**
+	 * banner显示模式
+	 */
 	private Banner.Mode bannerMode = Banner.Mode.CONSOLE;
 
+	/**
+	 * 打印启动日志
+	 */
 	private boolean logStartupInfo = true;
 
 	private boolean addCommandLineProperties = true;
@@ -232,7 +251,9 @@ public class SpringApplication {
 	private boolean registerShutdownHook = true;
 
 	/**
-	 * ApplicationContextInitializer集合
+	 * ApplicationContextInitializer实例的集合
+	 * ApplicationContextInitializer可以在ConfigurableApplicationContext类型或者子类型的应用上下文做refresh之前
+	 * 允许我们对ConfigurableApplicationContext的实例做进一步的设置和处理，
 	 */
 	private List<ApplicationContextInitializer<?>> initializers;
 
@@ -260,6 +281,8 @@ public class SpringApplication {
 	 * @see #run(Class, String[])
 	 * @see #SpringApplication(ResourceLoader, Class...)
 	 * @see #setSources(Set)
+	 *
+	 * 创建SpringApplication实例
 	 */
 	public SpringApplication(Class<?>... primarySources) {
 		this(null, primarySources);
@@ -274,26 +297,41 @@ public class SpringApplication {
 	 * @param primarySources the primary bean sources
 	 * @see #run(Class, String[])
 	 * @see #setSources(Set)
+	 *
+	 * 创建SpringApplication实例
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public SpringApplication(ResourceLoader resourceLoader, Class<?>... primarySources) {
+		// 资源加载器
 		this.resourceLoader = resourceLoader;
 		Assert.notNull(primarySources, "PrimarySources must not be null");
+		// primarySources
 		this.primarySources = new LinkedHashSet<>(Arrays.asList(primarySources));
 		// 从classpath中推断web应用类型
 		this.webApplicationType = WebApplicationType.deduceFromClasspath();
-		// 初始化initializers属性
+		/**
+		 * 获取spring.factories配置的所有的ApplicationContextInitializer实例并保存到initializer集合中
+		 *
+		 * ApplicationContextInitializer可以在ConfigurableApplicationContext类型或者子类型的应用上下文做refresh之前，
+		 * 允许我们对ConfigurableApplicationContext的实例做进一步的设置和处理
+		 */
 		setInitializers((Collection) getSpringFactoriesInstances(ApplicationContextInitializer.class));
-		// 初始化listeners属性
+		// 获取spring.factories配置的所有的ApplicationListener实例并保存到listeners集合中
 		setListeners((Collection) getSpringFactoriesInstances(ApplicationListener.class));
-		// 推断主应用类
+		// 从多个配置类中找到含有main方法的类
 		this.mainApplicationClass = deduceMainApplicationClass();
 	}
 
+	/**
+	 * 从多个配置类中找到含有main方法的类
+	 * @return
+	 */
 	private Class<?> deduceMainApplicationClass() {
 		try {
+			// 从当前线程的执行栈中查找
 			StackTraceElement[] stackTrace = new RuntimeException().getStackTrace();
 			for (StackTraceElement stackTraceElement : stackTrace) {
+				// 找到main方法
 				if ("main".equals(stackTraceElement.getMethodName())) {
 					return Class.forName(stackTraceElement.getClassName());
 				}
@@ -310,14 +348,18 @@ public class SpringApplication {
 	 * {@link ApplicationContext}.
 	 * @param args the application arguments (usually passed from a Java main method)
 	 * @return a running {@link ApplicationContext}
+	 *
+	 * 启动SpringApplication，创建并刷新应用上下文
 	 */
 	public ConfigurableApplicationContext run(String... args) {
 		// 主要用于统计run启动时长
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
+		// 应用上下文
 		ConfigurableApplicationContext context = null;
+		// 存储异常信息
 		Collection<SpringBootExceptionReporter> exceptionReporters = new ArrayList<>();
-		// headless属性
+		// 配置java.awt.headless属性，默认设置为true
 		configureHeadlessProperty();
 		// 获得SpringApplicationRunListener列表
 		SpringApplicationRunListeners listeners = getRunListeners(args);
@@ -1268,6 +1310,8 @@ public class SpringApplication {
 	 * @param primarySource the primary source to load
 	 * @param args the application arguments (usually passed from a Java main method)
 	 * @return the running {@link ApplicationContext}
+	 *
+	 * 使用指定的primarySource、参数以及默认的配置来启动SpringApplication
 	 */
 	public static ConfigurableApplicationContext run(Class<?> primarySource, String... args) {
 		return run(new Class<?>[] { primarySource }, args);
@@ -1279,6 +1323,8 @@ public class SpringApplication {
 	 * @param primarySources the primary sources to load
 	 * @param args the application arguments (usually passed from a Java main method)
 	 * @return the running {@link ApplicationContext}
+	 *
+	 * 使用指定的primarySource、参数以及默认的配置来启动SpringApplication
 	 */
 	public static ConfigurableApplicationContext run(Class<?>[] primarySources, String[] args) {
 		/**

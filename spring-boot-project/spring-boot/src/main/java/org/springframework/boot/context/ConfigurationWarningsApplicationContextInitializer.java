@@ -48,6 +48,9 @@ import org.springframework.util.StringUtils;
  *
  * @author Phillip Webb
  * @since 1.2.0
+ *
+ * 用于报告Spring容器的一些常见错误配置的信息，主要是用来检测@ComponentScan的package配置，如果配置的是org或者org.springframework包
+ * 则会打印警告信息
  */
 public class ConfigurationWarningsApplicationContextInitializer
 		implements ApplicationContextInitializer<ConfigurableApplicationContext> {
@@ -56,6 +59,7 @@ public class ConfigurationWarningsApplicationContextInitializer
 
 	@Override
 	public void initialize(ConfigurableApplicationContext context) {
+		// 往容器中增加一个BeanDefinitionRegistry后置处理器
 		context.addBeanFactoryPostProcessor(new ConfigurationWarningsPostProcessor(getChecks()));
 	}
 
@@ -69,6 +73,7 @@ public class ConfigurationWarningsApplicationContextInitializer
 
 	/**
 	 * {@link BeanDefinitionRegistryPostProcessor} to report warnings.
+	 * 用来报告各种警告信息的
 	 */
 	protected static final class ConfigurationWarningsPostProcessor
 			implements PriorityOrdered, BeanDefinitionRegistryPostProcessor {
@@ -90,6 +95,7 @@ public class ConfigurationWarningsApplicationContextInitializer
 
 		@Override
 		public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+			// 打印警告信息，主要是检查@ComponentScan配置了错误的包名
 			for (Check check : this.checks) {
 				String message = check.getWarning(registry);
 				if (StringUtils.hasLength(message)) {
@@ -124,13 +130,19 @@ public class ConfigurationWarningsApplicationContextInitializer
 
 	/**
 	 * {@link Check} for {@code @ComponentScan} on problematic package.
+	 *
+	 * 用于检查@ComponentScan注解配置的有问题的包名
 	 */
 	protected static class ComponentScanPackageCheck implements Check {
 
+		/**
+		 * 保存有问题的包名
+		 */
 		private static final Set<String> PROBLEM_PACKAGES;
 
 		static {
 			Set<String> packages = new HashSet<>();
+			// 如果是org包或者org.springframework包，则是有问题的
 			packages.add("org.springframework");
 			packages.add("org");
 			PROBLEM_PACKAGES = Collections.unmodifiableSet(packages);
@@ -138,11 +150,14 @@ public class ConfigurationWarningsApplicationContextInitializer
 
 		@Override
 		public String getWarning(BeanDefinitionRegistry registry) {
+			// 找到所有@ComponentScan配置的扫描的包名称
 			Set<String> scannedPackages = getComponentScanningPackages(registry);
+			// 过滤出配置的有问题的报名
 			List<String> problematicPackages = getProblematicPackages(scannedPackages);
 			if (problematicPackages.isEmpty()) {
 				return null;
 			}
+			// 返回警告信息
 			return "Your ApplicationContext is unlikely to start due to a @ComponentScan of "
 					+ StringUtils.collectionToDelimitedString(problematicPackages, ", ") + ".";
 		}
@@ -154,6 +169,7 @@ public class ConfigurationWarningsApplicationContextInitializer
 				BeanDefinition definition = registry.getBeanDefinition(name);
 				if (definition instanceof AnnotatedBeanDefinition) {
 					AnnotatedBeanDefinition annotatedDefinition = (AnnotatedBeanDefinition) definition;
+					// 找到所有@ComponentScan配置的扫描的包名称
 					addComponentScanningPackages(packages, annotatedDefinition.getMetadata());
 				}
 			}
@@ -190,6 +206,7 @@ public class ConfigurationWarningsApplicationContextInitializer
 		private List<String> getProblematicPackages(Set<String> scannedPackages) {
 			List<String> problematicPackages = new ArrayList<>();
 			for (String scannedPackage : scannedPackages) {
+				// 过滤配置的有问题的包名
 				if (isProblematicPackage(scannedPackage)) {
 					problematicPackages.add(getDisplayName(scannedPackage));
 				}

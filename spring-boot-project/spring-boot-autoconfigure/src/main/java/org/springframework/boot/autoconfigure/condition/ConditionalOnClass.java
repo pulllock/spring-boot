@@ -36,7 +36,7 @@ import org.springframework.context.annotation.Conditional;
  *
  * @author Phillip Webb
  * @since 1.0.0
- * 当classpath下有指定类的情况下
+ * 当classpath下有指定类的情况下，需要指定的所有的类都存在才算匹配成功
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)

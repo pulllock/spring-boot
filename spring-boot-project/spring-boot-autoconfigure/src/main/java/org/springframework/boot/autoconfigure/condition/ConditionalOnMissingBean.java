@@ -58,7 +58,7 @@ import org.springframework.context.annotation.Conditional;
  * @author Phillip Webb
  * @author Andy Wilkinson
  * @since 1.0.0
- * 当容器中没有指定的Bean的情况下
+ * 当容器中没有指定的Bean的情况下，也就是注解中指定的所有的Bean都不在容器中存在时，才算匹配成功
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)

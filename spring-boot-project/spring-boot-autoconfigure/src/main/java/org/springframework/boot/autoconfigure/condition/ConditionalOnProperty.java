@@ -98,6 +98,7 @@ public @interface ConditionalOnProperty {
 
 	/**
 	 * Alias for {@link #name()}.
+	 * 属性名称
 	 * @return the names
 	 */
 	String[] value() default {};
@@ -106,6 +107,7 @@ public @interface ConditionalOnProperty {
 	 * A prefix that should be applied to each property. The prefix automatically ends
 	 * with a dot if not specified. A valid prefix is defined by one or more words
 	 * separated with dots (e.g. {@code "acme.system.feature"}).
+	 * 属性名称的前缀
 	 * @return the prefix
 	 */
 	String prefix() default "";
@@ -118,6 +120,7 @@ public @interface ConditionalOnProperty {
 	 * <p>
 	 * Use the dashed notation to specify each property, that is all lower case with a "-"
 	 * to separate words (e.g. {@code my-long-property}).
+	 * 属性名称
 	 * @return the names
 	 */
 	String[] name() default {};
@@ -125,6 +128,7 @@ public @interface ConditionalOnProperty {
 	/**
 	 * The string representation of the expected value for the properties. If not
 	 * specified, the property must <strong>not</strong> be equal to {@code false}.
+	 * 属性对应的值和havingValue的值是否相同，如果相同表示匹配成功
 	 * @return the expected value
 	 */
 	String havingValue() default "";
@@ -132,6 +136,7 @@ public @interface ConditionalOnProperty {
 	/**
 	 * Specify if the condition should match if the property is not set. Defaults to
 	 * {@code false}.
+	 * 缺少该配置属性时是否可以加载，如果配置为true表示没有该配置时也是匹配成功
 	 * @return if should match if the property is missing
 	 */
 	boolean matchIfMissing() default false;

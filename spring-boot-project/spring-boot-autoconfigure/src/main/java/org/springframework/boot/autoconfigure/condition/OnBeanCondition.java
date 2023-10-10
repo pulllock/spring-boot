@@ -62,6 +62,7 @@ import org.springframework.util.StringUtils;
 /**
  * {@link Condition} that checks for the presence or absence of specific beans.
  *
+ *
  * @author Phillip Webb
  * @author Dave Syer
  * @author Jakub Kubrynski
@@ -111,27 +112,33 @@ class OnBeanCondition extends FilteringSpringBootCondition implements Configurat
 	@Override
 	public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
 		ConditionMessage matchMessage = ConditionMessage.empty();
-		// 从当前方法上获取所有注解
+		// 从被注解的类或方法的元数据上获取所有注解
 		MergedAnnotations annotations = metadata.getAnnotations();
 		// 有ConditionalOnBean注解
 		if (annotations.isPresent(ConditionalOnBean.class)) {
 			Spec<ConditionalOnBean> spec = new Spec<>(context, metadata, annotations, ConditionalOnBean.class);
 			// 根据注解上的条件，获取匹配结果
 			MatchResult matchResult = getMatchingBeans(context, spec);
-			// 没有全部匹配上，则匹配失败
+			// 没有全部匹配上，则匹配失败，只有@ConditionalOnBean注解上配置的所有的Bean在容器中都存在，才算匹配成功
 			if (!matchResult.isAllMatched()) {
 				String reason = createOnBeanNoMatchReason(matchResult);
+				// 返回匹配失败
 				return ConditionOutcome.noMatch(spec.message().because(reason));
 			}
 			matchMessage = spec.message(matchMessage).found("bean", "beans").items(Style.QUOTE,
 					matchResult.getNamesOfAllMatches());
 		}
+
+		// 有@ConditionalOnSingleCandidate注解
 		if (metadata.isAnnotated(ConditionalOnSingleCandidate.class.getName())) {
 			Spec<ConditionalOnSingleCandidate> spec = new SingleCandidateSpec(context, metadata, annotations);
+			// 根据注解上的条件，获取匹配结果
 			MatchResult matchResult = getMatchingBeans(context, spec);
+			// 匹配失败
 			if (!matchResult.isAllMatched()) {
 				return ConditionOutcome.noMatch(spec.message().didNotFind("any beans").atAll());
 			}
+			// 没有Primary的Bean
 			else if (!hasSingleAutowireCandidate(context.getBeanFactory(), matchResult.getNamesOfAllMatches(),
 					spec.getStrategy() == SearchStrategy.ALL)) {
 				return ConditionOutcome.noMatch(spec.message().didNotFind("a primary bean from beans")
@@ -140,10 +147,13 @@ class OnBeanCondition extends FilteringSpringBootCondition implements Configurat
 			matchMessage = spec.message(matchMessage).found("a primary bean from beans").items(Style.QUOTE,
 					matchResult.getNamesOfAllMatches());
 		}
+		// 有@ConditionalOnMissingBean注解
 		if (metadata.isAnnotated(ConditionalOnMissingBean.class.getName())) {
 			Spec<ConditionalOnMissingBean> spec = new Spec<>(context, metadata, annotations,
 					ConditionalOnMissingBean.class);
+			// 根据注解上的条件，获取匹配结果，只有@ConditionalOnMissingBean配置的所有的Bean在容器中都不存在，才算匹配成功
 			MatchResult matchResult = getMatchingBeans(context, spec);
+			// 匹配失败
 			if (matchResult.isAnyMatched()) {
 				String reason = createOnMissingBeanNoMatchReason(matchResult);
 				return ConditionOutcome.noMatch(spec.message().because(reason));
@@ -164,37 +174,48 @@ class OnBeanCondition extends FilteringSpringBootCondition implements Configurat
 					"Unable to use SearchStrategy.ANCESTORS");
 			beanFactory = (ConfigurableListableBeanFactory) parent;
 		}
+		// 匹配结果
 		MatchResult result = new MatchResult();
-		// 获取忽略的Bean名字
+		// 获取需要忽略的Bean名字，只有@ConditionalOnMissingBean注解可以配置ignored或ignoredType属性
 		Set<String> beansIgnoredByType = getNamesOfBeansIgnoredByType(classLoader, beanFactory, considerHierarchy,
 				spec.getIgnoredTypes(), parameterizedContainers);
-		// 根据@Conditional注解中的type进行匹配
+		// 根据注解中的value或type属性配置的值进行匹配，@Conditional、@ConditionalOnMissingBean、@ConditionalOnSingleCandidate这三个注解都有value和type属性
 		for (String type : spec.getTypes()) {
+			// 从容器中获取指定类型的Bean
 			Collection<String> typeMatches = getBeanNamesForType(classLoader, considerHierarchy, beanFactory, type,
 					parameterizedContainers);
+			// 将需要忽略的Bean移除掉
 			typeMatches.removeAll(beansIgnoredByType);
+			// 没有找到能够匹配的Bean
 			if (typeMatches.isEmpty()) {
+				// 记录不匹配的类型
 				result.recordUnmatchedType(type);
 			}
 			else {
+				// 如果有能够匹配到的，就记录匹配到了
 				result.recordMatchedType(type, typeMatches);
 			}
 		}
 
-		// 根据@Conditional注解中的annotation进行匹配
+		// 根据注解的annotation属性配置的值进行匹配，只有@Conditional、@ConditionalOnMissingBean有annotation属性
 		for (String annotation : spec.getAnnotations()) {
+			// 从容器中获取指定注解类型的Bean
 			Set<String> annotationMatches = getBeanNamesForAnnotation(classLoader, beanFactory, annotation,
 					considerHierarchy);
+			// 将需要忽略的Bean移除掉
 			annotationMatches.removeAll(beansIgnoredByType);
+			// 没有找到能够匹配的Bean
 			if (annotationMatches.isEmpty()) {
+				// 记录不匹配的注解
 				result.recordUnmatchedAnnotation(annotation);
 			}
 			else {
+				// 如果有能够匹配到，就记录匹配到了
 				result.recordMatchedAnnotation(annotation, annotationMatches);
 			}
 		}
 
-		// 根据@Conditional注解的name进行匹配
+		// 根据注解的name属性配置的值进行匹配，只有@Conditional、@ConditionalOnMissingBean有name属性
 		for (String beanName : spec.getNames()) {
 			// 忽略的Bean中不包含依赖的Bean，并且容器中存在依赖的bean，则匹配成功
 			if (!beansIgnoredByType.contains(beanName) && containsBean(beanFactory, beanName, considerHierarchy)) {
@@ -662,18 +683,33 @@ class OnBeanCondition extends FilteringSpringBootCondition implements Configurat
 	 */
 	private static final class MatchResult {
 
+		/**
+		 * 记录匹配到的注解
+		 */
 		private final Map<String, Collection<String>> matchedAnnotations = new HashMap<>();
 
 		private final List<String> matchedNames = new ArrayList<>();
 
+		/**
+		 * 记录匹配到的类型
+		 */
 		private final Map<String, Collection<String>> matchedTypes = new HashMap<>();
 
+		/**
+		 * 记录不匹配的注解
+		 */
 		private final List<String> unmatchedAnnotations = new ArrayList<>();
 
 		private final List<String> unmatchedNames = new ArrayList<>();
 
+		/**
+		 * 记录不匹配的类型
+		 */
 		private final List<String> unmatchedTypes = new ArrayList<>();
 
+		/**
+		 * 记录匹配到的所有的名字
+		 */
 		private final Set<String> namesOfAllMatches = new HashSet<>();
 
 		private void recordMatchedName(String name) {

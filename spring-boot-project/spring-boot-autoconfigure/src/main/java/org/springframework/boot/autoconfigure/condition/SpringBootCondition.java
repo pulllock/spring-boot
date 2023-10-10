@@ -81,12 +81,19 @@ public abstract class SpringBootCondition implements Condition {
 		return metadata.toString();
 	}
 
+	/**
+	 * 从被注解的元数据中获取类名或方法名
+	 * @param metadata
+	 * @return
+	 */
 	private static String getClassOrMethodName(AnnotatedTypeMetadata metadata) {
+		// 类名
 		if (metadata instanceof ClassMetadata) {
 			ClassMetadata classMetadata = (ClassMetadata) metadata;
 			return classMetadata.getClassName();
 		}
 		MethodMetadata methodMetadata = (MethodMetadata) metadata;
+		// 类名——方法名
 		return methodMetadata.getDeclaringClassName() + "#" + methodMetadata.getMethodName();
 	}
 

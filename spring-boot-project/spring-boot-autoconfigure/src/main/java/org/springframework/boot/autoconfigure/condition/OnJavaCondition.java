@@ -40,13 +40,17 @@ class OnJavaCondition extends SpringBootCondition {
 
 	@Override
 	public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
+		// 获取@ConditionalOnJava注解的属性
 		Map<String, Object> attributes = metadata.getAnnotationAttributes(ConditionalOnJava.class.getName());
+		// 获取range属性
 		Range range = (Range) attributes.get("range");
+		// 获取配置的java版本属性
 		JavaVersion version = (JavaVersion) attributes.get("value");
 		return getMatchOutcome(range, JVM_VERSION, version);
 	}
 
 	protected ConditionOutcome getMatchOutcome(Range range, JavaVersion runningVersion, JavaVersion version) {
+		// 是不是匹配版本
 		boolean match = isWithin(runningVersion, range, version);
 		String expected = String.format((range != Range.EQUAL_OR_NEWER) ? "(older than %s)" : "(%s or newer)", version);
 		ConditionMessage message = ConditionMessage.forCondition(ConditionalOnJava.class, expected)

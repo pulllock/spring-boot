@@ -39,13 +39,20 @@ import org.springframework.util.CollectionUtils;
 abstract class FilteringSpringBootCondition extends SpringBootCondition
 		implements AutoConfigurationImportFilter, BeanFactoryAware, BeanClassLoaderAware {
 
+	/**
+	 * Bean容器
+	 */
 	private BeanFactory beanFactory;
 
+	/**
+	 * 类加载器
+	 */
 	private ClassLoader beanClassLoader;
 
 	@Override
 	public boolean[] match(String[] autoConfigurationClasses, AutoConfigurationMetadata autoConfigurationMetadata) {
 		ConditionEvaluationReport report = ConditionEvaluationReport.find(this.beanFactory);
+		// 获取条件匹配结果
 		ConditionOutcome[] outcomes = getOutcomes(autoConfigurationClasses, autoConfigurationMetadata);
 		boolean[] match = new boolean[outcomes.length];
 		for (int i = 0; i < outcomes.length; i++) {

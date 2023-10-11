@@ -52,6 +52,7 @@ import org.springframework.util.Assert;
  * <p>
  * Cache store can be auto-detected or specified explicitly via configuration.
  *
+ * 缓存自动配置
  * @author Stephane Nicoll
  * @since 1.3.0
  * @see EnableCaching

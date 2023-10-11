@@ -46,6 +46,7 @@ import org.springframework.util.ClassUtils;
  * definitions will override ones defined in earlier loaded files. This can be leveraged
  * to deliberately override certain bean definitions via an extra Configuration class.
  *
+ * 基于注解配置的Servlet web服务对应的应用上下文
  * @author Phillip Webb
  * @since 1.0.0
  * @see #register(Class...)
@@ -70,7 +71,9 @@ public class AnnotationConfigServletWebServerApplicationContext extends ServletW
 	 * {@linkplain #refresh refreshed}.
 	 */
 	public AnnotationConfigServletWebServerApplicationContext() {
+		// 用来读取使用注解的Bean定义读取器
 		this.reader = new AnnotatedBeanDefinitionReader(this);
+		// classpath Bean定义扫描器
 		this.scanner = new ClassPathBeanDefinitionScanner(this);
 	}
 

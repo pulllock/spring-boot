@@ -375,6 +375,10 @@ public class SpringApplication {
 			// 打印Banner
 			Banner printedBanner = printBanner(environment);
 			// 根据不同类型，创建不同类型的spring容器
+			// Servlet容器使用AnnotationConfigServletWebServerApplicationContext类型的容器，会创建一个AnnotatedBeanDefinitionReader和ClassPathBeanDefinitionScanner
+			// 在实例化AnnotatedBeanDefinitionReader对象的时候，会向容器中注册一些用来处理注解相关的PostProcessor的Bean定义，有：ConfigurationClassPostProcessor、
+			// AutowiredAnnotationBeanPostProcessor、CommonAnnotationBeanPostProcessor、PersistenceAnnotationBeanPostProcessor、EventListenerMethodProcessor、
+			// DefaultEventListenerFactory等
 			context = createApplicationContext();
 			// 获得异常报告类
 			exceptionReporters = getSpringFactoriesInstances(SpringBootExceptionReporter.class,

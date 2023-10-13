@@ -57,14 +57,17 @@ class AutoConfigurationSorter {
 				this.autoConfigurationMetadata, classNames);
 		List<String> orderedClassNames = new ArrayList<>(classNames);
 		// Initially sort alphabetically
+		// 先自然排序
 		Collections.sort(orderedClassNames);
 		// Then sort by order
+		// 再按照Order进行排序
 		orderedClassNames.sort((o1, o2) -> {
 			int i1 = classes.get(o1).getOrder();
 			int i2 = classes.get(o2).getOrder();
 			return Integer.compare(i1, i2);
 		});
 		// Then respect @AutoConfigureBefore @AutoConfigureAfter
+		// 最后按照@AutoConfigureBefore @AutoConfigureAfter进行排序
 		orderedClassNames = sortByAnnotation(classes, orderedClassNames);
 		return orderedClassNames;
 	}

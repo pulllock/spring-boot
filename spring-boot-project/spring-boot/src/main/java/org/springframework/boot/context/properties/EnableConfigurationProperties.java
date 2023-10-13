@@ -31,6 +31,9 @@ import org.springframework.context.annotation.Import;
  * (for example using {@link Bean @Bean} methods) or, for convenience, can be specified
  * directly on this annotation.
  *
+ * 利用EnableConfigurationPropertiesRegistrar导入一些基础Bean：ConfigurationPropertiesBindingPostProcessor、
+ * ConfigurationPropertiesBinder、ConfigurationPropertiesBeanDefinitionValidator、ConfigurationPropertiesBinder、ConfigurationBeanFactoryMetadata，
+ * 并将@ConfigurationProperties注解的Bean进行解析并注册到容器中
  * @author Dave Syer
  * @since 1.0.0
  */

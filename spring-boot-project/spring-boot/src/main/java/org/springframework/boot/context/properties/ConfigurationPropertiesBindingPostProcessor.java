@@ -34,6 +34,8 @@ import org.springframework.util.Assert;
  * {@link BeanPostProcessor} to bind {@link PropertySources} to beans annotated with
  * {@link ConfigurationProperties @ConfigurationProperties}.
  *
+ * 将属性绑定到@ConfigurationProperties注解的配置属性Bean中
+ *
  * @author Dave Syer
  * @author Phillip Webb
  * @author Christian Dupuis
@@ -93,6 +95,7 @@ public class ConfigurationPropertiesBindingPostProcessor
 
 	@Override
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+		// 将属性绑定到@ConfigurationProperties注解的Bean中
 		bind(ConfigurationPropertiesBean.get(this.applicationContext, bean, beanName));
 		return bean;
 	}

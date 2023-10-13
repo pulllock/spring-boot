@@ -26,6 +26,10 @@ import org.springframework.context.annotation.Configuration;
  * {@link ConfigurationProperties @ConfigurationProperties} beans. Automatically binds and
  * validates any bean annotated with {@code @ConfigurationProperties}.
  *
+ * 在解析自动配置的时候，会解析该类，会利用EnableConfigurationPropertiesRegistrar导入一些基础Bean：ConfigurationPropertiesBindingPostProcessor、
+ * ConfigurationPropertiesBinder、ConfigurationPropertiesBeanDefinitionValidator、ConfigurationPropertiesBinder、ConfigurationBeanFactoryMetadata，
+ * 并将@ConfigurationProperties注解的Bean进行解析并注册到容器中
+ *
  * @author Stephane Nicoll
  * @since 1.3.0
  * @see EnableConfigurationProperties

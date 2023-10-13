@@ -306,6 +306,7 @@ public class SpringApplication {
 		this.resourceLoader = resourceLoader;
 		Assert.notNull(primarySources, "PrimarySources must not be null");
 		// primarySources
+		// 缓存primarySource，也就是main方法所在的类，后面会以该primarySource来作为起点，开始解析配置类
 		this.primarySources = new LinkedHashSet<>(Arrays.asList(primarySources));
 		// 从classpath中推断web应用类型
 		this.webApplicationType = WebApplicationType.deduceFromClasspath();
@@ -383,7 +384,7 @@ public class SpringApplication {
 			// 获得异常报告类
 			exceptionReporters = getSpringFactoriesInstances(SpringBootExceptionReporter.class,
 					new Class[] { ConfigurableApplicationContext.class }, context);
-			// 准备上下文，主要是ApplicationContextInitializer的初始化方法调用
+			// 准备上下文，主要是ApplicationContextInitializer的初始化方法调用，将primarySource解析成Bean定义注册到容器中
 			prepareContext(context, environment, listeners, applicationArguments, printedBanner);
 			// 初始化Spring容器
 			refreshContext(context);
@@ -478,9 +479,10 @@ public class SpringApplication {
 			context.addBeanFactoryPostProcessor(new LazyInitializationBeanFactoryPostProcessor());
 		}
 		// Load the sources
-		// 加载BeanDefinitions
+		// 加载sources，main方法所在的类为primarySource，解析配置类会以此作为起始
 		Set<Object> sources = getAllSources();
 		Assert.notEmpty(sources, "Sources must not be empty");
+		// 将primarySource解析成Bean定义，并注册到容器中
 		load(context, sources.toArray(new Object[0]));
 		// 通知监听器们：容器加载完成
 		listeners.contextLoaded(context);
@@ -792,7 +794,7 @@ public class SpringApplication {
 		if (this.environment != null) {
 			loader.setEnvironment(this.environment);
 		}
-		// BeanDefinitionLoader开始加载BeanDefinitions
+		// BeanDefinitionLoader开始加载Bean定义，Main方法所在的primarySource解析成Bean定义并注册到容器中
 		loader.load();
 	}
 
@@ -1329,7 +1331,7 @@ public class SpringApplication {
 	 * @param args the application arguments (usually passed from a Java main method)
 	 * @return the running {@link ApplicationContext}
 	 *
-	 * 使用指定的primarySource、参数以及默认的配置来启动SpringApplication
+	 * 使用指定的primarySource、参数以及默认的配置来启动SpringApplication，primarySource是启动时指定的主要来源，一般就是我们制定的Main方法所在类
 	 */
 	public static ConfigurableApplicationContext run(Class<?>[] primarySources, String[] args) {
 		/**

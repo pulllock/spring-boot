@@ -133,6 +133,7 @@ class BeanDefinitionLoader {
 	private int load(Object source) {
 		Assert.notNull(source, "Source must not be null");
 		if (source instanceof Class<?>) {
+			// Main方法所在的primarySource解析成Bean定义并注册到容器中
 			return load((Class<?>) source);
 		}
 		if (source instanceof Resource) {

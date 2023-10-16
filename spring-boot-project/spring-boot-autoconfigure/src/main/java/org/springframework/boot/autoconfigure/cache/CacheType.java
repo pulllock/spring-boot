@@ -19,6 +19,7 @@ package org.springframework.boot.autoconfigure.cache;
 /**
  * Supported cache types (defined in order of precedence).
  *
+ * 支持的缓存类型
  * @author Stephane Nicoll
  * @author Phillip Webb
  * @author Eddú Meléndez

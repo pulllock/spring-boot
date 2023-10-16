@@ -27,6 +27,7 @@ import org.springframework.util.Assert;
 /**
  * Configuration properties for the cache abstraction.
  *
+ * 缓存的配置
  * @author Stephane Nicoll
  * @author Eddú Meléndez
  * @author Ryon Day
@@ -37,25 +38,45 @@ public class CacheProperties {
 
 	/**
 	 * Cache type. By default, auto-detected according to the environment.
+	 * 缓存类型
 	 */
 	private CacheType type;
 
 	/**
 	 * Comma-separated list of cache names to create if supported by the underlying cache
 	 * manager. Usually, this disables the ability to create additional caches on-the-fly.
+	 * 缓存名字
 	 */
 	private List<String> cacheNames = new ArrayList<>();
 
+	/**
+	 * caffeine配置
+	 */
 	private final Caffeine caffeine = new Caffeine();
 
+	/**
+	 * couchbase配置
+	 */
 	private final Couchbase couchbase = new Couchbase();
 
+	/**
+	 * ehcache配置
+	 */
 	private final EhCache ehcache = new EhCache();
 
+	/**
+	 * infinispan配置
+	 */
 	private final Infinispan infinispan = new Infinispan();
 
+	/**
+	 * jcache配置
+	 */
 	private final JCache jcache = new JCache();
 
+	/**
+	 * redis配置
+	 */
 	private final Redis redis = new Redis();
 
 	public CacheType getType() {

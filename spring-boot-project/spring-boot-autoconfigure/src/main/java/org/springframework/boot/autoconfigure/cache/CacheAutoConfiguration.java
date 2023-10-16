@@ -58,21 +58,36 @@ import org.springframework.util.Assert;
  * @see EnableCaching
  */
 @Configuration(proxyBeanMethods = false)
+// 需要有CacheManager类存在
 @ConditionalOnClass(CacheManager.class)
+// 需要有CacheAspectSupport这个Bean存在，在@EnableCaching注解解析配置的时候，会注册一个CacheInterceptor到容器中，CacheInterceptor是CacheAspectSupport的子类
 @ConditionalOnBean(CacheAspectSupport.class)
 @ConditionalOnMissingBean(value = CacheManager.class, name = "cacheResolver")
+// 导入spring.cache配置
 @EnableConfigurationProperties(CacheProperties.class)
 @AutoConfigureAfter({ CouchbaseAutoConfiguration.class, HazelcastAutoConfiguration.class,
 		HibernateJpaAutoConfiguration.class, RedisAutoConfiguration.class })
+// CacheConfigurationImportSelector向容器中注册已知的支持的不同缓存的配置
 @Import({ CacheConfigurationImportSelector.class, CacheManagerEntityManagerFactoryDependsOnPostProcessor.class })
 public class CacheAutoConfiguration {
 
+	/**
+	 * 注册CacheManagerCustomizer定制器Bean到容器中
+	 * @param customizers
+	 * @return
+	 */
 	@Bean
 	@ConditionalOnMissingBean
 	public CacheManagerCustomizers cacheManagerCustomizers(ObjectProvider<CacheManagerCustomizer<?>> customizers) {
 		return new CacheManagerCustomizers(customizers.orderedStream().collect(Collectors.toList()));
 	}
 
+	/**
+	 * 注册CacheManagerValidator验证器Bean到容器中
+	 * @param cacheProperties
+	 * @param cacheManager
+	 * @return
+	 */
 	@Bean
 	public CacheManagerValidator cacheAutoConfigurationValidator(CacheProperties cacheProperties,
 			ObjectProvider<CacheManager> cacheManager) {
@@ -93,6 +108,8 @@ public class CacheAutoConfiguration {
 	/**
 	 * Bean used to validate that a CacheManager exists and provide a more meaningful
 	 * exception.
+	 *
+	 * CacheManager验证器，验证CacheManager存在
 	 */
 	static class CacheManagerValidator implements InitializingBean {
 
@@ -116,6 +133,7 @@ public class CacheAutoConfiguration {
 
 	/**
 	 * {@link ImportSelector} to add {@link CacheType} configuration classes.
+	 * 导入所有支持的不同缓存的配置
 	 */
 	static class CacheConfigurationImportSelector implements ImportSelector {
 

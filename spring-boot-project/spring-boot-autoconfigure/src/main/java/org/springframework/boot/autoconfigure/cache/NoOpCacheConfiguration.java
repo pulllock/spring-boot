@@ -26,6 +26,8 @@ import org.springframework.context.annotation.Configuration;
 /**
  * No-op cache configuration used to disable caching via configuration.
  *
+ * 不开启缓存的配置
+ *
  * @author Stephane Nicoll
  */
 @Configuration(proxyBeanMethods = false)

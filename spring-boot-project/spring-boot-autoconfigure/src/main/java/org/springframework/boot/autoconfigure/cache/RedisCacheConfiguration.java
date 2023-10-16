@@ -40,15 +40,22 @@ import org.springframework.data.redis.serializer.RedisSerializationContext.Seria
 /**
  * Redis cache configuration.
  *
+ * redis缓存配置
+ *
  * @author Stephane Nicoll
  * @author Mark Paluch
  * @author Ryon Day
  */
 @Configuration(proxyBeanMethods = false)
+// 需要RedisConnectionFactory类存在
 @ConditionalOnClass(RedisConnectionFactory.class)
+// 在RedisAutoConfiguration自动配置之后进行配置
 @AutoConfigureAfter(RedisAutoConfiguration.class)
+// 需要RedisConnectionFactory的Bean存在
 @ConditionalOnBean(RedisConnectionFactory.class)
+// 不能存在CacheManager的Bean
 @ConditionalOnMissingBean(CacheManager.class)
+// 需要满足CacheCondition的条件
 @Conditional(CacheCondition.class)
 class RedisCacheConfiguration {
 
@@ -57,13 +64,17 @@ class RedisCacheConfiguration {
 			ObjectProvider<org.springframework.data.redis.cache.RedisCacheConfiguration> redisCacheConfiguration,
 			ObjectProvider<RedisCacheManagerBuilderCustomizer> redisCacheManagerBuilderCustomizers,
 			RedisConnectionFactory redisConnectionFactory, ResourceLoader resourceLoader) {
+		// 创建RedisCacheManagerBuilder实例
 		RedisCacheManagerBuilder builder = RedisCacheManager.builder(redisConnectionFactory).cacheDefaults(
 				determineConfiguration(cacheProperties, redisCacheConfiguration, resourceLoader.getClassLoader()));
 		List<String> cacheNames = cacheProperties.getCacheNames();
 		if (!cacheNames.isEmpty()) {
+			// 初始化配置中配置的缓存
 			builder.initialCacheNames(new LinkedHashSet<>(cacheNames));
 		}
+		// 先使用RedisCacheManagerBuilder进行自定义
 		redisCacheManagerBuilderCustomizers.orderedStream().forEach((customizer) -> customizer.customize(builder));
+		// 创建RedisCacheManager，并使用CacheManager自定义器进行自定义配置
 		return cacheManagerCustomizers.customize(builder.build());
 	}
 
@@ -76,20 +87,27 @@ class RedisCacheConfiguration {
 
 	private org.springframework.data.redis.cache.RedisCacheConfiguration createConfiguration(
 			CacheProperties cacheProperties, ClassLoader classLoader) {
+		// spring.cache.redis配置
 		Redis redisProperties = cacheProperties.getRedis();
+		// 使用默认配置创建一个RedisCacheConfiguration实例
 		org.springframework.data.redis.cache.RedisCacheConfiguration config = org.springframework.data.redis.cache.RedisCacheConfiguration
 				.defaultCacheConfig();
+		// 默认使用jdk的序列器
 		config = config.serializeValuesWith(
 				SerializationPair.fromSerializer(new JdkSerializationRedisSerializer(classLoader)));
+		// spring.cache.redis.time-to-live配置
 		if (redisProperties.getTimeToLive() != null) {
 			config = config.entryTtl(redisProperties.getTimeToLive());
 		}
+		// spring.cache.redis.key-prefix配置
 		if (redisProperties.getKeyPrefix() != null) {
 			config = config.prefixKeysWith(redisProperties.getKeyPrefix());
 		}
+		// spring.cache.redis.cache-null-values配置
 		if (!redisProperties.isCacheNullValues()) {
 			config = config.disableCachingNullValues();
 		}
+		// spring.cache.redis.use-key-prefix配置
 		if (!redisProperties.isUseKeyPrefix()) {
 			config = config.disableKeyPrefix();
 		}

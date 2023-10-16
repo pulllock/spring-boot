@@ -28,21 +28,27 @@ import org.springframework.context.annotation.Configuration;
 /**
  * Simplest cache configuration, usually used as a fallback.
  *
+ * 使用ConcurrentHashMap实现的简单的缓存配置
  * @author Stephane Nicoll
  */
 @Configuration(proxyBeanMethods = false)
+// 不能存在其他的CacheManager的Bean
 @ConditionalOnMissingBean(CacheManager.class)
+// 需要满足CacheCondition的条件
 @Conditional(CacheCondition.class)
 class SimpleCacheConfiguration {
 
 	@Bean
 	ConcurrentMapCacheManager cacheManager(CacheProperties cacheProperties,
 			CacheManagerCustomizers cacheManagerCustomizers) {
+		// 创建一个ConcurrentMapCacheManager实例
 		ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager();
 		List<String> cacheNames = cacheProperties.getCacheNames();
 		if (!cacheNames.isEmpty()) {
+			// 配置中配置的名字
 			cacheManager.setCacheNames(cacheNames);
 		}
+		// 自定义配置
 		return cacheManagerCustomizers.customize(cacheManager);
 	}
 

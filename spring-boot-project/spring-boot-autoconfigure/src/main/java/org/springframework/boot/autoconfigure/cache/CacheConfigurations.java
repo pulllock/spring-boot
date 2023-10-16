@@ -25,6 +25,8 @@ import org.springframework.util.Assert;
 /**
  * Mappings between {@link CacheType} and {@code @Configuration}.
  *
+ * 缓存配置的映射
+ *
  * @author Phillip Webb
  * @author Eddú Meléndez
  */
@@ -34,15 +36,25 @@ final class CacheConfigurations {
 
 	static {
 		Map<CacheType, Class<?>> mappings = new EnumMap<>(CacheType.class);
+		// 通用缓存
 		mappings.put(CacheType.GENERIC, GenericCacheConfiguration.class);
+		// ehCache
 		mappings.put(CacheType.EHCACHE, EhCacheCacheConfiguration.class);
+		// hazelcast
 		mappings.put(CacheType.HAZELCAST, HazelcastCacheConfiguration.class);
+		// infinispan
 		mappings.put(CacheType.INFINISPAN, InfinispanCacheConfiguration.class);
+		// jcache
 		mappings.put(CacheType.JCACHE, JCacheCacheConfiguration.class);
+		// couchbase
 		mappings.put(CacheType.COUCHBASE, CouchbaseCacheConfiguration.class);
+		// redis
 		mappings.put(CacheType.REDIS, RedisCacheConfiguration.class);
+		// caffeine
 		mappings.put(CacheType.CAFFEINE, CaffeineCacheConfiguration.class);
+		// simple
 		mappings.put(CacheType.SIMPLE, SimpleCacheConfiguration.class);
+		// 不开启缓存
 		mappings.put(CacheType.NONE, NoOpCacheConfiguration.class);
 		MAPPINGS = Collections.unmodifiableMap(mappings);
 	}

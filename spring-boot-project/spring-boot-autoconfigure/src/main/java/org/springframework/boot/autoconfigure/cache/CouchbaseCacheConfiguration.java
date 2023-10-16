@@ -37,13 +37,19 @@ import org.springframework.util.StringUtils;
 /**
  * Couchbase cache configuration.
  *
+ * couchbase缓存配置
+ *
  * @author Stephane Nicoll
  * @since 1.4.0
  */
 @Configuration(proxyBeanMethods = false)
+// 需要Bucket类存在并且需要CouchbaseCacheManager类存在
 @ConditionalOnClass({ Bucket.class, CouchbaseCacheManager.class })
+// 不能有其他的CacheManager存在
 @ConditionalOnMissingBean(CacheManager.class)
+// 只能有一个Bucket的Bean存在
 @ConditionalOnSingleCandidate(Bucket.class)
+// 需要满足CacheCondition条件
 @Conditional(CacheCondition.class)
 public class CouchbaseCacheConfiguration {
 
@@ -56,7 +62,9 @@ public class CouchbaseCacheConfiguration {
 		PropertyMapper.get().from(couchbase::getExpiration).whenNonNull().asInt(Duration::getSeconds)
 				.to(builder::withExpiration);
 		String[] names = StringUtils.toStringArray(cacheNames);
+		// 创建CouchbaseCacheManager实例
 		CouchbaseCacheManager cacheManager = new CouchbaseCacheManager(builder, names);
+		// 自定义配置
 		return customizers.customize(cacheManager);
 	}
 

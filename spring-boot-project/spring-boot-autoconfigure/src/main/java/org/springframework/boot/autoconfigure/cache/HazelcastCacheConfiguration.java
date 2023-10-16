@@ -39,20 +39,34 @@ import org.springframework.context.annotation.Configuration;
  * If the {@link HazelcastAutoConfiguration} has been disabled, an attempt to configure a
  * default {@link HazelcastInstance} is still made, using the same defaults.
  *
+ * hazelcast缓存配置
  * @author Stephane Nicoll
  * @see HazelcastConfigResourceCondition
  */
 @Configuration(proxyBeanMethods = false)
+// 需要HazelcastInstance类存在并且需要HazelcastCacheManager类存在
 @ConditionalOnClass({ HazelcastInstance.class, HazelcastCacheManager.class })
+// 没有其他的CacheManager的Bean存在
 @ConditionalOnMissingBean(CacheManager.class)
+// 需要满足CacheCondition的条件
 @Conditional(CacheCondition.class)
+// 需要满足容器中只有一个HazelcastInstance的Bean
 @ConditionalOnSingleCandidate(HazelcastInstance.class)
 class HazelcastCacheConfiguration {
 
+	/**
+	 * 向容器中注册HazelcastCacheManager的Bean
+	 * @param customizers
+	 * @param existingHazelcastInstance
+	 * @return
+	 * @throws IOException
+	 */
 	@Bean
 	HazelcastCacheManager cacheManager(CacheManagerCustomizers customizers, HazelcastInstance existingHazelcastInstance)
 			throws IOException {
+		// 创建HazelcastCacheManager实例
 		HazelcastCacheManager cacheManager = new HazelcastCacheManager(existingHazelcastInstance);
+		// 使用CacheManager自定义器进行自定义配置
 		return customizers.customize(cacheManager);
 	}
 

@@ -31,18 +31,25 @@ import org.springframework.context.annotation.Configuration;
  * Generic cache configuration based on arbitrary {@link Cache} instances defined in the
  * context.
  *
+ * 通用缓存配置
+ *
  * @author Stephane Nicoll
  */
 @Configuration(proxyBeanMethods = false)
+// 需要有Cache实现类的Bean存在
 @ConditionalOnBean(Cache.class)
+// 没有其他的CacheManager的Bean存在
 @ConditionalOnMissingBean(CacheManager.class)
+// 需要满足CacheCondition中的条件
 @Conditional(CacheCondition.class)
 class GenericCacheConfiguration {
 
 	@Bean
 	SimpleCacheManager cacheManager(CacheManagerCustomizers customizers, Collection<Cache> caches) {
+		// 创建一个简单的CacheManager实例
 		SimpleCacheManager cacheManager = new SimpleCacheManager();
 		cacheManager.setCaches(caches);
+		// 执行CacheManager自定义器对CacheManager进行自定义
 		return customizers.customize(cacheManager);
 	}
 

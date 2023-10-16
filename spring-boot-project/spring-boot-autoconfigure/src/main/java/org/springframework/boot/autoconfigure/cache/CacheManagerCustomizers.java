@@ -27,6 +27,7 @@ import org.springframework.cache.CacheManager;
  * Invokes the available {@link CacheManagerCustomizer} instances in the context for a
  * given {@link CacheManager}.
  *
+ * CacheManager定制器
  * @author Stephane Nicoll
  * @since 1.5.0
  */
@@ -48,6 +49,7 @@ public class CacheManagerCustomizers {
 	 */
 	@SuppressWarnings("unchecked")
 	public <T extends CacheManager> T customize(T cacheManager) {
+		// 遍历执行所有的CacheManagerCustomizer
 		LambdaSafe.callbacks(CacheManagerCustomizer.class, this.customizers, cacheManager)
 				.withLogger(CacheManagerCustomizers.class).invoke((customizer) -> customizer.customize(cacheManager));
 		return cacheManager;

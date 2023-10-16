@@ -22,6 +22,8 @@ import org.springframework.cache.CacheManager;
  * Callback interface that can be implemented by beans wishing to customize the cache
  * manager before it is fully initialized, in particular to tune its configuration.
  *
+ * CacheManager缓存定制器，在CacheManager完全初始化之前可以自定义配置CacheManager
+ *
  * @param <T> the type of the {@link CacheManager}
  * @author Stephane Nicoll
  * @since 1.3.3
@@ -31,6 +33,7 @@ public interface CacheManagerCustomizer<T extends CacheManager> {
 
 	/**
 	 * Customize the cache manager.
+	 * 用来自定义CacheManager
 	 * @param cacheManager the {@code CacheManager} to customize
 	 */
 	void customize(T cacheManager);

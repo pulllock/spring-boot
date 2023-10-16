@@ -36,11 +36,16 @@ import org.springframework.util.StringUtils;
 /**
  * Caffeine cache configuration.
  *
+ * caffeine缓存配置
+ *
  * @author Eddú Meléndez
  */
 @Configuration(proxyBeanMethods = false)
+// 需要有Caffeine类存在，并且需要有CaffeineCacheManager类存在
 @ConditionalOnClass({ Caffeine.class, CaffeineCacheManager.class })
+// 不能有其他的CacheManager存在
 @ConditionalOnMissingBean(CacheManager.class)
+// 需要满足CacheCondition条件
 @Conditional({ CacheCondition.class })
 class CaffeineCacheConfiguration {
 
@@ -48,11 +53,14 @@ class CaffeineCacheConfiguration {
 	CaffeineCacheManager cacheManager(CacheProperties cacheProperties, CacheManagerCustomizers customizers,
 			ObjectProvider<Caffeine<Object, Object>> caffeine, ObjectProvider<CaffeineSpec> caffeineSpec,
 			ObjectProvider<CacheLoader<Object, Object>> cacheLoader) {
+		// 创建CaffeineCacheManager实例
 		CaffeineCacheManager cacheManager = createCacheManager(cacheProperties, caffeine, caffeineSpec, cacheLoader);
 		List<String> cacheNames = cacheProperties.getCacheNames();
 		if (!CollectionUtils.isEmpty(cacheNames)) {
+			// 配置中配置的缓存名字
 			cacheManager.setCacheNames(cacheNames);
 		}
+		// 自定义配置
 		return customizers.customize(cacheManager);
 	}
 

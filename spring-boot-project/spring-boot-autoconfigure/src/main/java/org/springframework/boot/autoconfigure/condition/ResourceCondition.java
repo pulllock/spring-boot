@@ -30,6 +30,7 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
  * {@link SpringBootCondition} used to check if a resource can be found using a
  * configurable property and optional default location(s).
  *
+ * 资源条件，用来检查一个资源是否存在
  * @author Stephane Nicoll
  * @author Phillip Webb
  * @author Madhura Bhave

@@ -51,13 +51,19 @@ import org.springframework.util.StringUtils;
 /**
  * Cache configuration for JSR-107 compliant providers.
  *
+ * jcache缓存配置
+ *
  * @author Stephane Nicoll
  * @author Madhura Bhave
  */
 @Configuration(proxyBeanMethods = false)
+// 需要有Cache类存在，并且需要有JCacheCacheManager类存在
 @ConditionalOnClass({ Caching.class, JCacheCacheManager.class })
+// 不能有其他的CacheManager的Bean存在
 @ConditionalOnMissingBean(org.springframework.cache.CacheManager.class)
+// 需要满足CacheCondition的条件并且需要满足JCacheAvailableCondition的条件
 @Conditional({ CacheCondition.class, JCacheCacheConfiguration.JCacheAvailableCondition.class })
+// 导入HazelcastJCacheCustomizationConfiguration配置
 @Import(HazelcastJCacheCustomizationConfiguration.class)
 class JCacheCacheConfiguration implements BeanClassLoaderAware {
 
@@ -70,10 +76,21 @@ class JCacheCacheConfiguration implements BeanClassLoaderAware {
 
 	@Bean
 	JCacheCacheManager cacheManager(CacheManagerCustomizers customizers, CacheManager jCacheCacheManager) {
+		// 创建JCacheCacheManager实例
 		JCacheCacheManager cacheManager = new JCacheCacheManager(jCacheCacheManager);
+		// 自定义配置
 		return customizers.customize(cacheManager);
 	}
 
+	/**
+	 * 注册CacheManager的Bean
+	 * @param cacheProperties
+	 * @param defaultCacheConfiguration
+	 * @param cacheManagerCustomizers
+	 * @param cachePropertiesCustomizers
+	 * @return
+	 * @throws IOException
+	 */
 	@Bean
 	@ConditionalOnMissingBean
 	CacheManager jCacheCacheManager(CacheProperties cacheProperties,

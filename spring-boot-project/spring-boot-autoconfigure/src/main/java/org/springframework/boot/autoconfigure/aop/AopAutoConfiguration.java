@@ -36,6 +36,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
  * {@literal proxyTargetClass} attribute will be {@literal true}, by default, but can be
  * overridden by specifying {@literal spring.aop.proxy-target-class=false}.
  *
+ * AOP自动配置
  * @author Dave Syer
  * @author Josh Long
  * @since 1.0.0
@@ -49,6 +50,9 @@ public class AopAutoConfiguration {
 	@ConditionalOnClass(Advice.class)
 	static class AspectJAutoProxyingConfiguration {
 
+		/**
+		 * 使用@EnableAspectJAutoProxy进行注册
+		 */
 		@Configuration(proxyBeanMethods = false)
 		@EnableAspectJAutoProxy(proxyTargetClass = false)
 		@ConditionalOnProperty(prefix = "spring.aop", name = "proxy-target-class", havingValue = "false",
@@ -57,6 +61,9 @@ public class AopAutoConfiguration {
 
 		}
 
+		/**
+		 * 使用@EnableAspectJAutoProxy进行注册
+		 */
 		@Configuration(proxyBeanMethods = false)
 		@EnableAspectJAutoProxy(proxyTargetClass = true)
 		@ConditionalOnProperty(prefix = "spring.aop", name = "proxy-target-class", havingValue = "true",

@@ -27,6 +27,8 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
  *
  * @author Grzegorz Poznachowski
  * @since 1.4.0
+ *
+ * 对Jackson2ObjectMapperBuilder自定义的接口
  */
 @FunctionalInterface
 public interface Jackson2ObjectMapperBuilderCustomizer {

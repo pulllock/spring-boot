@@ -40,6 +40,8 @@ import org.springframework.boot.context.properties.DeprecatedConfigurationProper
  * @author Marcel Overdijk
  * @author Johannes Edmeier
  * @since 1.2.0
+ *
+ * 可以对Jackson进行配置的属性
  */
 @ConfigurationProperties(prefix = "spring.jackson")
 public class JacksonProperties {
@@ -47,66 +49,90 @@ public class JacksonProperties {
 	/**
 	 * Date format string or a fully-qualified date format class name. For instance,
 	 * `yyyy-MM-dd HH:mm:ss`.
+	 *
+	 * 日期格式
 	 */
 	private String dateFormat;
 
 	/**
 	 * Joda date time format string. If not configured, "date-format" is used as a
 	 * fallback if it is configured with a format string.
+	 *
+	 * Joda日期格式
 	 */
 	private String jodaDateTimeFormat;
 
 	/**
 	 * One of the constants on Jackson's PropertyNamingStrategy. Can also be a
 	 * fully-qualified class name of a PropertyNamingStrategy subclass.
+	 *
+	 * 指定Jackson的属性命名策略
 	 */
 	private String propertyNamingStrategy;
 
 	/**
 	 * Jackson visibility thresholds that can be used to limit which methods (and fields)
 	 * are auto-detected.
+	 *
+	 * 指定字段的访问级别
 	 */
 	private final Map<PropertyAccessor, JsonAutoDetect.Visibility> visibility = new EnumMap<>(PropertyAccessor.class);
 
 	/**
 	 * Jackson on/off features that affect the way Java objects are serialized.
+	 *
+	 * 配置序列化的特性
 	 */
 	private final Map<SerializationFeature, Boolean> serialization = new EnumMap<>(SerializationFeature.class);
 
 	/**
 	 * Jackson on/off features that affect the way Java objects are deserialized.
+	 *
+	 * 配置反序列化的特性
 	 */
 	private final Map<DeserializationFeature, Boolean> deserialization = new EnumMap<>(DeserializationFeature.class);
 
 	/**
 	 * Jackson general purpose on/off features.
+	 *
+	 * 配置Jackson通用的特性
 	 */
 	private final Map<MapperFeature, Boolean> mapper = new EnumMap<>(MapperFeature.class);
 
 	/**
 	 * Jackson on/off features for parsers.
+	 *
+	 * 配置Jackson解析器的特性
 	 */
 	private final Map<JsonParser.Feature, Boolean> parser = new EnumMap<>(JsonParser.Feature.class);
 
 	/**
 	 * Jackson on/off features for generators.
+	 *
+	 * 配置Jackson的JsonGenerator的特性
 	 */
 	private final Map<JsonGenerator.Feature, Boolean> generator = new EnumMap<>(JsonGenerator.Feature.class);
 
 	/**
 	 * Controls the inclusion of properties during serialization. Configured with one of
 	 * the values in Jackson's JsonInclude.Include enumeration.
+	 *
+	 * 配置序列化时属性的包含范围
 	 */
 	private JsonInclude.Include defaultPropertyInclusion;
 
 	/**
 	 * Time zone used when formatting dates. For instance, "America/Los_Angeles" or
 	 * "GMT+10".
+	 *
+	 * 配置时区
 	 */
 	private TimeZone timeZone = null;
 
 	/**
 	 * Locale used for formatting.
+	 *
+	 * 配置本地化
 	 */
 	private Locale locale;
 

@@ -78,15 +78,22 @@ import org.springframework.util.ReflectionUtils;
  * @author Phillip Webb
  * @author Eddú Meléndez
  * @since 1.1.0
+ *
+ * Jackson的自动配置
  */
 @Configuration(proxyBeanMethods = false)
+// ObjectMapper存在
 @ConditionalOnClass(ObjectMapper.class)
 public class JacksonAutoConfiguration {
 
+	/**
+	 * 默认的特性
+	 */
 	private static final Map<?, Boolean> FEATURE_DEFAULTS;
 
 	static {
 		Map<Object, Boolean> featureDefaults = new HashMap<>();
+		// 序列化时日期转换为时间戳，设置为false，WRITE_DATES_AS_TIMESTAMPS默认为true
 		featureDefaults.put(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 		FEATURE_DEFAULTS = Collections.unmodifiableMap(featureDefaults);
 	}
@@ -97,6 +104,7 @@ public class JacksonAutoConfiguration {
 	}
 
 	@Configuration(proxyBeanMethods = false)
+	// Jackson2ObjectMapperBuilder类存在
 	@ConditionalOnClass(Jackson2ObjectMapperBuilder.class)
 	static class JacksonObjectMapperConfiguration {
 
@@ -104,6 +112,7 @@ public class JacksonAutoConfiguration {
 		@Primary
 		@ConditionalOnMissingBean
 		ObjectMapper jacksonObjectMapper(Jackson2ObjectMapperBuilder builder) {
+			// 使用Jackson2ObjectMapperBuilder创建ObjectMapper
 			return builder.createXmlMapper(false).build();
 		}
 
@@ -164,23 +173,37 @@ public class JacksonAutoConfiguration {
 
 	}
 
+	/**
+	 * Jackson2ObjectMapperBuilder配置
+	 */
 	@Configuration(proxyBeanMethods = false)
+	// Jackson2ObjectMapperBuilder类存在
 	@ConditionalOnClass(Jackson2ObjectMapperBuilder.class)
 	static class JacksonObjectMapperBuilderConfiguration {
 
+		/**
+		 * 创建Jackson2ObjectMapperBuilder的Bean
+		 * @param applicationContext
+		 * @param customizers
+		 * @return
+		 */
 		@Bean
 		@Scope("prototype")
 		@ConditionalOnMissingBean
 		Jackson2ObjectMapperBuilder jacksonObjectMapperBuilder(ApplicationContext applicationContext,
 				List<Jackson2ObjectMapperBuilderCustomizer> customizers) {
+			// 创建Jackson2ObjectMapperBuilder
 			Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder();
+			// 设置上下文
 			builder.applicationContext(applicationContext);
+			// 自定义Jackson2ObjectMapperBuilder
 			customize(builder, customizers);
 			return builder;
 		}
 
 		private void customize(Jackson2ObjectMapperBuilder builder,
 				List<Jackson2ObjectMapperBuilderCustomizer> customizers) {
+			// 遍历Jackson2ObjectMapperBuilderCustomizer，对Jackson2ObjectMapperBuilder进行自定义设置
 			for (Jackson2ObjectMapperBuilderCustomizer customizer : customizers) {
 				customizer.customize(builder);
 			}
@@ -188,22 +211,41 @@ public class JacksonAutoConfiguration {
 
 	}
 
+	/**
+	 * Jackson2ObjectMapperBuilderCustomizer配置
+	 */
 	@Configuration(proxyBeanMethods = false)
+	// Jackson2ObjectMapperBuilder类存在
 	@ConditionalOnClass(Jackson2ObjectMapperBuilder.class)
 	@EnableConfigurationProperties(JacksonProperties.class)
 	static class Jackson2ObjectMapperBuilderCustomizerConfiguration {
 
+		/**
+		 * 创建标准的Jackson2ObjectMapperBuilderCustomizer实例
+		 * @param applicationContext
+		 * @param jacksonProperties
+		 * @return
+		 */
 		@Bean
 		StandardJackson2ObjectMapperBuilderCustomizer standardJacksonObjectMapperBuilderCustomizer(
 				ApplicationContext applicationContext, JacksonProperties jacksonProperties) {
 			return new StandardJackson2ObjectMapperBuilderCustomizer(applicationContext, jacksonProperties);
 		}
 
+		/**
+		 * Jackson2ObjectMapperBuilderCustomizer的标准实现
+		 */
 		static final class StandardJackson2ObjectMapperBuilderCustomizer
 				implements Jackson2ObjectMapperBuilderCustomizer, Ordered {
 
+			/**
+			 * 应用上下文
+			 */
 			private final ApplicationContext applicationContext;
 
+			/**
+			 * Jackson配置属性
+			 */
 			private final JacksonProperties jacksonProperties;
 
 			StandardJackson2ObjectMapperBuilderCustomizer(ApplicationContext applicationContext,
@@ -217,25 +259,42 @@ public class JacksonAutoConfiguration {
 				return 0;
 			}
 
+			/**
+			 * 对Jackson2ObjectMapperBuilder进行自定义
+			 * @param builder the JacksonObjectMapperBuilder to customize
+			 */
 			@Override
 			public void customize(Jackson2ObjectMapperBuilder builder) {
 
+				// 设置序列化的Include
 				if (this.jacksonProperties.getDefaultPropertyInclusion() != null) {
 					builder.serializationInclusion(this.jacksonProperties.getDefaultPropertyInclusion());
 				}
+				// 设置时区
 				if (this.jacksonProperties.getTimeZone() != null) {
 					builder.timeZone(this.jacksonProperties.getTimeZone());
 				}
+				// 设置默认特性
 				configureFeatures(builder, FEATURE_DEFAULTS);
+				// 设置visibility
 				configureVisibility(builder, this.jacksonProperties.getVisibility());
+				// 设置反序列化特性
 				configureFeatures(builder, this.jacksonProperties.getDeserialization());
+				// 设置序列化特性
 				configureFeatures(builder, this.jacksonProperties.getSerialization());
+				// 设置Jackson通用特性
 				configureFeatures(builder, this.jacksonProperties.getMapper());
+				// 设置parser特性
 				configureFeatures(builder, this.jacksonProperties.getParser());
+				// 设置generator特性
 				configureFeatures(builder, this.jacksonProperties.getGenerator());
+				// 配置日期格式
 				configureDateFormat(builder);
+				// 配置属性命名策略
 				configurePropertyNamingStrategy(builder);
+				// 配置模块，会将所有的Module类型的Bean注册到Jackson2ObjectMapperBuilder中
 				configureModules(builder);
+				// 配置本地化
 				configureLocale(builder);
 			}
 
@@ -260,19 +319,24 @@ public class JacksonAutoConfiguration {
 			private void configureDateFormat(Jackson2ObjectMapperBuilder builder) {
 				// We support a fully qualified class name extending DateFormat or a date
 				// pattern string value
+				// 配置的日期格式
 				String dateFormat = this.jacksonProperties.getDateFormat();
 				if (dateFormat != null) {
 					try {
+						// 可以配置类名字
 						Class<?> dateFormatClass = ClassUtils.forName(dateFormat, null);
 						builder.dateFormat((DateFormat) BeanUtils.instantiateClass(dateFormatClass));
 					}
 					catch (ClassNotFoundException ex) {
+						// 配置的日期格式
 						SimpleDateFormat simpleDateFormat = new SimpleDateFormat(dateFormat);
 						// Since Jackson 2.6.3 we always need to set a TimeZone (see
 						// gh-4170). If none in our properties fallback to the Jackson's
 						// default
+						// 配置的时区
 						TimeZone timeZone = this.jacksonProperties.getTimeZone();
 						if (timeZone == null) {
+							// 默认的时区
 							timeZone = new ObjectMapper().getSerializationConfig().getTimeZone();
 						}
 						simpleDateFormat.setTimeZone(timeZone);
@@ -286,6 +350,7 @@ public class JacksonAutoConfiguration {
 				// PropertyNamingStrategy or a string value corresponding to the constant
 				// names in PropertyNamingStrategy which hold default provided
 				// implementations
+				// 配置的属性命名策略
 				String strategy = this.jacksonProperties.getPropertyNamingStrategy();
 				if (strategy != null) {
 					try {
@@ -324,6 +389,7 @@ public class JacksonAutoConfiguration {
 			}
 
 			private void configureLocale(Jackson2ObjectMapperBuilder builder) {
+				// 配置的本地化信息
 				Locale locale = this.jacksonProperties.getLocale();
 				if (locale != null) {
 					builder.locale(locale);
